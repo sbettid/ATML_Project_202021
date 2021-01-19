@@ -99,4 +99,31 @@ At this point, we were ready to start the implementation of the Real-Time applic
 
 ## Real-time application
 
+The final goal of our project was to apply the trained model in real-time, taking images from a camera. 
+
+We start by loading the model we trained in the previous step. In order to detect the eyes from a complete image, we decided to use OpenCV Cascade Classifiers with some pre-trained models (https://github.com/opencv/opencv/tree/master/data/haarcascades). 
+
+Each time we obtain a new frame from the webcam, we convert it to gray, keeping 3 channels, as done also in the training of the model.
+
+We then try to detect a face in the frame, using the frontal face classifier of OpenCV. If the face is detected, we split vertically the resulting area in two parts and we apply  single eyes cascade classifiers to each one, in order to detect individually the left and right eyes.
+
+If we are able to detect both eyes, we "cut" the interested area and we resize it to a 80x80 dimension. We standardise the two images (applying so the same transformations of the training phase), passing then them to the model.
+
+If both eyes are closed, we increase a counter of closed eyes, that stores the number of subsequent closed eyes frames. Once the counter reaches a certain threshold, we play the defined alarm.
+
+We reset the counter whenever two consecutive frames show open eyes (around half a second).
+
+### Demo
+
+We decided to record a demo in a car, to test the capabilities of the real time application in a real scenario. 
+
+Following, the link of the recorded demo: https://drive.google.com/file/d/1sHtowUj_MbqyW8L3QH4MyoaHmDdNM0cK/view?usp=sharing
+
+
 ## Challenges
+
+- Finding a suitable dataset to train the model. At the beginning we found mostly datasets containing only closed eyes/open eyes/faces. (both)
+- Unifying the data pre-processing on the dataset and the real time frames. More specifically, the pre-trained Xception model expects 3 channels images, while converting images to a gray scale resulted in a single channel. (Davide Cremonini)
+- Using the Cascade Classifiers making sure to avoid multiple detections of the same eye. We then found how detecting the face, splitting it, helped solving the issue. (Davide Sbetti)
+- During training, tuning the different parameters and finding the appropriate network structure to obtain a large accuracy. (both)
+- Trying not to laugh when the alarm sounds during the demo (both).
